@@ -75,10 +75,12 @@ func main() {
 			log.Println(err)
 			continue
 		}
+		uts := cert.NotAfter.Unix()
 		// fmt.Println("Certificate:")
 		fmt.Printf("\tSubject: %+v\n", cert.Issuer)
 		fmt.Printf("\tNotafter %+v\n", cert.NotAfter)
-		fmt.Println("\tNotAfterUnix:", cert.NotAfter.Unix())
+		fmt.Println("\tNotAfterUnix:", uts)
+		//fmt.Println("\tNotAfterUnix:", cert.NotAfter.Unix())
 
 		// fmt.Printf("\tDNS Names: %+v\n", cert.DNSNames)
 		// fmt.Printf("\tEmailAddresses: %+v\n", cert.EmailAddresses)
@@ -89,8 +91,8 @@ func main() {
 
 collector := &myCollector{
 	metric: prometheus.NewDesc(
-		"my_metric",
-		"This is my metric with custom TS",
+		"unix_epoch_expiry_date",
+		"X509 Certificate Expiry Date",
 		nil,
 		nil,
 	),
