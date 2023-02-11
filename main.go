@@ -7,10 +7,16 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	url := "http://localhost:8080/ca.pem"
+
+    // Running local http server to serve multiple x509 certificate stored in a file
+    // url := "http://localhost:8080/ca.pem"
+    url := os.Args[1]
+    // fmt.Println(url)
+
 	response, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
