@@ -1,4 +1,4 @@
-module github.com/prometheus/common/log
+module github.com/prometheus
 
 go 1.17
 
