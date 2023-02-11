@@ -8,33 +8,15 @@ import (
 	"log"
 	"net/http"
 	// "os"
-	"time"
+	// "time"
 
-	"github.com/prometheus/client_golang/prometheus"
-    "github.com/prometheus/client_golang/prometheus/promhttp"
+	// "github.com/prometheus/client_golang/prometheus"
+    // "github.com/prometheus/client_golang/prometheus/promhttp"
 )
-
-type myCollector struct {
-    metric *prometheus.Desc
-}
-
-func (c *myCollector) Describe(ch chan<- *prometheus.Desc) {
-    ch <- c.metric
-}
-
-func (c *myCollector) Collect(ch chan<- prometheus.Metric) {
-    // your logic should be placed here
-
-    t := time.Date(2009, time.November, 10, 23, 0, 0, 12345678, time.UTC)
-    s := prometheus.NewMetricWithTimestamp(t, prometheus.MustNewConstMetric(c.metric, prometheus.CounterValue, 123))
-
-    ch <- s
-}
-
 
 func main() {
 
-    // Running local http server to serve multiple x509 certificate stored in a file
+    // Running local http server to serve multiple x509 certificate stored in a file 
     url := "http://localhost:8080/ca.pem"
     // url := os.Args[1]
     // fmt.Println(url)
@@ -89,18 +71,5 @@ func main() {
 
 // prom exporter
 
-collector := &myCollector{
-	metric: prometheus.NewDesc(
-		"unix_epoch_expiry_date",
-		"X509 Certificate Expiry Date",
-		nil,
-		nil,
-	),
-}
-prometheus.MustRegister(collector)
-
-http.Handle("/metrics", promhttp.Handler())
-// log.Info("Beginning to serve on port :8080")
-http.ListenAndServe(":2112", nil)
 
 }
