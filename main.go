@@ -9,16 +9,18 @@ import (
 	"net/http"
 	// "os"
 	// "time"
+
 	// "github.com/prometheus/client_golang/prometheus"
-	// "github.com/prometheus/client_golang/prometheus/promhttp"
+    // "github.com/prometheus/client_golang/prometheus/promhttp"
 )
+
 
 func main() {
 
-	// Running local http server to serve multiple x509 certificate stored in a file
-	url := "http://localhost:8080/ca.pem"
-	// url := os.Args[1]
-	// fmt.Println(url)
+    // Running local http server to serve multiple x509 certificate stored in a file 
+    url := "http://localhost:8080/ca.pem"
+    // url := os.Args[1]
+    // fmt.Println(url)
 
 	response, err := http.Get(url)
 	if err != nil {
@@ -68,6 +70,6 @@ func main() {
 		// fmt.Printf("\tIPAddresses: %+v\n", cert.IPAddresses)
 	}
 
-	// prom exporter
+// prom exporter
 
 }
