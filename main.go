@@ -4,12 +4,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"flag"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -70,14 +68,14 @@ func main() {
 	}
 
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":2112", nil)
+	err = http.ListenAndServe(":2112", nil)
+	if err != nil {
+		log.Fatal("Server failed to start:", err)
+	}
 }
 
 func readFromWeb(url string) ([]byte, error) {
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
-
+	client := &http.Client{}
 	response, err := client.Get(url)
 	if err != nil {
 		return nil, err
@@ -94,12 +92,10 @@ func readFromFile(filePath string) ([]byte, error) {
 func parsePEMBlocks(data []byte) ([][]byte, error) {
 	var blocks [][]byte
 	rest := data
+	var block *pem.Block
 	for {
-		block, rest := pem.Decode(rest)
+		block, rest = pem.Decode(rest)
 		if block == nil {
-			if len(rest) > 0 {
-				return nil, fmt.Errorf("remainder of data contains invalid PEM block: %s", string(rest))
-			}
 			break
 		}
 		blocks = append(blocks, block.Bytes)
