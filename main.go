@@ -9,12 +9,28 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-var source = flag.String("source", "", "Specify 'web' to read from web server or 'file' to read from disk")
-var path = flag.String("path", "", "The URL or file path to the PEM file")
+var (
+	source = flag.String("source", "", "Specify 'web' to read from web server or 'file' to read from disk")
+	path   = flag.String("path", "", "The URL or file path to the PEM file")
+
+	certExpiry = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "certificate_expiry_timestamp",
+			Help: "The timestamp of when the certificate will expire.",
+		},
+		[]string{"issuer"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(certExpiry)
+}
 
 func main() {
 	flag.Parse()
@@ -50,8 +66,11 @@ func main() {
 			log.Println(err)
 			continue
 		}
-		printCertDetails(cert)
+		updateCertExpiryMetric(cert)
 	}
+
+	http.Handle("/metrics", promhttp.Handler())
+	http.ListenAndServe(":2112", nil)
 }
 
 func readFromWeb(url string) ([]byte, error) {
@@ -88,8 +107,10 @@ func parsePEMBlocks(data []byte) ([][]byte, error) {
 	return blocks, nil
 }
 
-func printCertDetails(cert *x509.Certificate) {
-	fmt.Printf("\tSubject: %+v\n", cert.Issuer)
-	fmt.Printf("\tNotafter %+v\n", cert.NotAfter)
-	fmt.Printf("\tNotAfterUnix: %d\n", cert.NotAfter.Unix())
+func updateCertExpiryMetric(cert *x509.Certificate) {
+	issuer := cert.Issuer.CommonName
+	if issuer == "" {
+		issuer = "unknown"
+	}
+	certExpiry.With(prometheus.Labels{"issuer": issuer}).Set(float64(cert.NotAfter.Unix()))
 }
